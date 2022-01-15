@@ -37,6 +37,7 @@ dependencies:
   http: any
   font_awesome_flutter: '>= 4.7.0'
   flutter_svg: ^0.23.0+1
+  cool_stepper: ^1.2.1
 
 dev_dependencies:
   flutter_test:

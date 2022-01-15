@@ -13,7 +13,24 @@ class _DprButtonState extends State<DprButton> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("app bar"),
+        // automaticallyImplyLeading: false,
+        iconTheme: IconThemeData(
+          color: Colors.black,
+          //change your color here
+        ),
+        title: Text('ADD DPR',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold),),
+
+        // Image.asset('assets/logo/roundlogo.jpg', height: 40,),
+        backgroundColor: Colors.white,
+        elevation: 0,
+
+        // leading: Image.asset('assets/logo/roundlogo.jpg',),
+        // title: Text('STEMCON',style: TextStyle(fontSize: 20,color: Colors.black),),
+        actions: [
+          // IconButton(icon: Icon(Icons.chat_bubble_outline,color: Colors.black,),onPressed: (){ },
+          // ),
+
+        ],
       ),
       body:       SingleChildScrollView(
         child: Column(
