@@ -52,7 +52,7 @@ class CompanyCodeView extends StatelessWidget with $CompanyCodeView {
                 const SizedBox(height: 10.0),
                 TextField(
                   controller: companyCodeController,
-                  keyboardType: TextInputType.phone,
+                  // keyboardType: TextInputType.phone,
                   decoration: textInputDecor.copyWith(
                     labelText: 'Company code',
                   ),
