@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:stemcon/app/app.locator.dart';
@@ -12,33 +14,58 @@ class NewProjectViewModel extends BaseViewModel {
   final _navService = locator<NavigationService>();
   final _apiService = locator<ApiService>();
   final _snackbarService = locator<SnackbarService>();
-  String selectedWorkingUnit = '';
+
   String selectedTimeZone = '';
 
-  List<String> workingUnit = [
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '8',
-    '9',
-    '10',
-    '11',
-    '12',
-  ];
+  List<String> listOfselectedTimeZone = [];
+
+  List<int> manWorkingHour = [];
+
+  List<String> listOfunits = ['MM', 'Ft', 'CM'];
+  String? unit;
+  String manHour = '1';
+
+  Future<void> requestTime() async {
+    try {
+      selectedTimeZone = await FlutterNativeTimezone.getLocalTimezone();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Could not get the local timezone');
+      }
+    }
+    try {
+      listOfselectedTimeZone =
+          await FlutterNativeTimezone.getAvailableTimezones();
+      listOfselectedTimeZone.sort();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Could not get available timezones');
+      }
+    }
+    notifyListeners();
+  }
+
+  void generatingManWorkingHour() {
+    List.generate(12, (index) => manWorkingHour.add(index));
+  }
+
+  void onChangedUnit(String? value) {
+    unit = value!;
+    notifyListeners();
+  }
+  //
 
   void back() {
     _navService.back();
   }
 
-  void onChangedUnits(dynamic selected) {
-    selectedWorkingUnit = selected;
+  void onChangedTime(dynamic selected) {
+    selectedTimeZone = selected;
     notifyListeners();
   }
-  void onChangedTime(dynamic selected) {
-     selectedTimeZone = selected;
+
+  void onChangedManHour(dynamic selected) {
+    manHour = selected;
     notifyListeners();
   }
 
@@ -51,12 +78,13 @@ class NewProjectViewModel extends BaseViewModel {
     required String purpose,
     required String keyPoints,
     required String address,
+    required String timeZone,
   }) async {
     if (workingHour == '' ||
         purpose == '' ||
         keyPoints == '' ||
         address == '' ||
-        selectedWorkingUnit == '' ||
+        unit == null ||
         selectedTimeZone == '') {
       _snackbarService.registerSnackbarConfig(SnackbarConfig(
         messageColor: whiteColor,
@@ -75,8 +103,8 @@ class NewProjectViewModel extends BaseViewModel {
         projectManHour: workingHour,
         projectPurpose: purpose,
         projectStatus: 'active',
-        projectTimezone: selectedTimeZone,
-        projectUnit: selectedWorkingUnit,
+        projectTimezone: timeZone,
+        projectUnit: unit,
       );
       final response =
           await _apiService.addProject2(postContent: projectContent);

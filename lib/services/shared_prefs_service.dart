@@ -8,11 +8,20 @@ class SharedPrefsservice {
     _prefs.setInt('isLogin', state);
   }
 
+  Future savedUserPhotoId(int state) async {
+    final _prefs = await SharedPreferences.getInstance();
+    _prefs.setInt('photoId', state);
+  }
+
+  Future<int?> loadUserPhotoId() async {
+    final _prefs = await SharedPreferences.getInstance();
+    return _prefs.getInt('photoId');
+  }
+
   Future<int?> loadUserState() async {
     final _prefs = await SharedPreferences.getInstance();
     return _prefs.getInt('isLogin');
   }
-
 
   Future savedUserData({
     required String key,
@@ -74,5 +83,11 @@ class SharedPrefsservice {
   Future<String?> loadUserUpdatedAt() async {
     final _prefs = await SharedPreferences.getInstance();
     return _prefs.getString('updated_at');
+  }
+
+  // clear values
+  Future clearData() async {
+    final _prefs = await SharedPreferences.getInstance();
+    return _prefs.clear();
   }
 }

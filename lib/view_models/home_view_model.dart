@@ -1,8 +1,10 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:stemcon/app/app.locator.dart';
 import 'package:stemcon/app/app.router.dart';
+import 'package:stemcon/models/new_user.dart';
 import 'package:stemcon/models/project_list_model.dart';
 import 'package:stemcon/services/api_service.dart';
 import 'package:stemcon/services/shared_prefs_service.dart';
@@ -12,9 +14,11 @@ class HomeViewModel extends BaseViewModel {
   final _prefService = locator<SharedPrefsservice>();
   final _apiService = locator<ApiService>();
   final _navService = locator<NavigationService>();
+  final _dialogService = locator<DialogService>();
   final _snackbarService = locator<SnackbarService>();
 
   bool isSearch = false;
+  bool isloginOut = false;
 
   void changedToSerach() {
     isSearch = !isSearch;
@@ -63,6 +67,7 @@ class HomeViewModel extends BaseViewModel {
   int? authenticationToken;
   String? createdAt = '';
   String? updatedAt = '';
+  int? photoId;
   Future<void> reload() async {
     userId = await _prefService.loadUserId();
     companyCode = await _prefService.loadUserCompanyCode();
@@ -72,12 +77,14 @@ class HomeViewModel extends BaseViewModel {
     status = await _prefService.loadUserStatus();
     createdAt = await _prefService.loadUserCreatedAt();
     updatedAt = await _prefService.loadUserUpdatedAt();
+    photoId = await _prefService.loadUserPhotoId();
     authenticationToken = await _prefService.loadUserAuthenticationToken();
     await _prefService.reloadData();
   }
 
   void toAddProjectView() {
-    if (userId == null || authenticationToken == null || adminStatus == null)return;
+    if (userId == null || authenticationToken == null || adminStatus == null)
+      return;
     _navService.navigateTo(
       Routes.addProjectView,
       arguments: AddProjectViewArguments(
@@ -119,10 +126,88 @@ class HomeViewModel extends BaseViewModel {
     } else {
       setBusy(false);
       errorMessage = 'No Data Found\n Please check your internet connectivity';
+    }
+  }
+
+  void toProfileView() {
+    if (userId == null || authenticationToken == null) {
+      return;
+    } else if (photoId == null &&
+        userId != null &&
+        authenticationToken != null) {
+      _navService.navigateTo(
+        Routes.profileView,
+        arguments: ProfileViewArguments(
+          token: authenticationToken!,
+          userId: userId!,
+          photoId: '',
+          checkId: 0,
+        ),
+      );
+      return;
+    } else {
+      _navService.navigateTo(
+        Routes.profileView,
+        arguments: ProfileViewArguments(
+          token: authenticationToken!,
+          userId: userId!,
+          photoId: photoId.toString(),
+          checkId: 1,
+        ),
+      );
+      return;
+    }
+  }
+
+// logout
+
+  void askLogoutPermission() async {
+    final res = await _dialogService.showConfirmationDialog(
+      title: 'Do you want to logout?',
+      confirmationTitle: 'Yes',
+      cancelTitle: 'No',
+    );
+    if (res!.confirmed) {
+      logOut();
+      return;
+    }
+  }
+
+  Future<void> logOut() async {
+    isloginOut = true;
+    notifyListeners();
+    final logOut = LogoutModel(
+        token: authenticationToken.toString(), userId: userId.toString());
+    final data = await _apiService.signOut(logoutModel: logOut);
+    final response = jsonDecode(data.body);
+    if (data.statusCode == 200) {
+      if (response['res_code'] == '1') {
+        _snackbarService.registerSnackbarConfig(SnackbarConfig(
+          messageColor: whiteColor,
+        ));
+        _snackbarService.showSnackbar(message: response['res_message']);
+        _prefService.clearData();
+        isloginOut = false;
+        notifyListeners();
+        _navService.replaceWith(Routes.companyCodeView);
+        return;
+      } else {
+        isloginOut = false;
+        notifyListeners();
+        _snackbarService.registerSnackbarConfig(SnackbarConfig(
+          messageColor: whiteColor,
+        ));
+        _snackbarService.showSnackbar(message: response['res_message']);
+        return;
+      }
+    } else {
+      isloginOut = false;
+      notifyListeners();
       _snackbarService.registerSnackbarConfig(SnackbarConfig(
         messageColor: whiteColor,
       ));
-      _snackbarService.showSnackbar(message: 'Something went wrong!');
+      _snackbarService.showSnackbar(message: response['res_message']);
+      return;
     }
   }
 }

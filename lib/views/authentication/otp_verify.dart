@@ -14,7 +14,7 @@ import '../../services/shared_prefs_service.dart';
 import '../../utils/color/color_pallets.dart';
 
 class OtpVerify extends StatefulWidget {
-  final int companyCode;
+  final String companyCode;
   final String countryCode;
   final String countryNumber;
   const OtpVerify({
@@ -241,9 +241,9 @@ class _OtpVerifyState extends State<OtpVerify> with CodeAutoFill {
             SizedBox(height: _size.height * 0.01),
             isBusy
                 ? const Padding(
-                    padding: EdgeInsets.all(15.0),
-                    child: LinearProgressIndicator(),
-                  )
+              padding: EdgeInsets.all(15.0),
+              child: LinearProgressIndicator(),
+            )
                 : const SizedBox.shrink(),
           ],
         ),

@@ -20,6 +20,7 @@ import '../views/category/selected_cat_view.dart';
 import '../views/category/tasks/add_new_task_view.dart';
 import '../views/category/tasks/task_view.dart';
 import '../views/home/home_view.dart';
+import '../views/profile/profile_view.dart';
 import '../views/projects/add_project1_view.dart';
 import '../views/projects/add_project2_view.dart';
 
@@ -36,6 +37,7 @@ class Routes {
   static const String selectedCatViews = '/selected-cat-views';
   static const String addNewDprView = '/add-new-dpr-view';
   static const String dprView = '/dpr-view';
+  static const String profileView = '/profile-view';
   static const all = <String>{
     startUpView,
     companyCodeView,
@@ -49,6 +51,7 @@ class Routes {
     selectedCatViews,
     addNewDprView,
     dprView,
+    profileView,
   };
 }
 
@@ -68,6 +71,7 @@ class StackedRouter extends RouterBase {
     RouteDef(Routes.selectedCatViews, page: selectedCatViews),
     RouteDef(Routes.addNewDprView, page: AddNewDprView),
     RouteDef(Routes.dprView, page: DprView),
+    RouteDef(Routes.profileView, page: ProfileView),
   ];
   @override
   Map<Type, StackedRouteFactory> get pagesMap => _pagesMap;
@@ -209,6 +213,19 @@ class StackedRouter extends RouterBase {
         settings: data,
       );
     },
+    ProfileView: (data) {
+      var args = data.getArgs<ProfileViewArguments>(nullOk: false);
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => ProfileView(
+          key: args.key,
+          userId: args.userId,
+          token: args.token,
+          checkId: args.checkId,
+          photoId: args.photoId,
+        ),
+        settings: data,
+      );
+    },
   };
 }
 
@@ -225,7 +242,7 @@ class CompanyCodeViewArguments {
 /// LoginView arguments holder class
 class LoginViewArguments {
   final Key? key;
-  final int? companyCode;
+  final String? companyCode;
   LoginViewArguments({this.key, this.companyCode});
 }
 
@@ -347,4 +364,19 @@ class DprViewArguments {
       required this.token,
       required this.userId,
       required this.projectId});
+}
+
+/// ProfileView arguments holder class
+class ProfileViewArguments {
+  final Key? key;
+  final int userId;
+  final int token;
+  final int checkId;
+  final String photoId;
+  ProfileViewArguments(
+      {this.key,
+      required this.userId,
+      required this.token,
+      required this.checkId,
+      required this.photoId});
 }

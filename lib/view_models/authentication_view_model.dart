@@ -32,7 +32,7 @@ class AuthenticationViewModel extends BaseViewModel {
   CountryCodesModel? countryCode = countryCodeDatas[0];
 
   void toOtpView({
-    required int companyCode,
+    required String companyCode,
     required String number,
   }) async {
     if (number == '' || countryCode == null || appSignature == null) {
@@ -49,7 +49,7 @@ class AuthenticationViewModel extends BaseViewModel {
     } else {
       setBusy(true);
       final userModel = NewUser(
-        company: companyCode,
+        companyCode: companyCode,
         number: number,
         countryCode: countryCode!.callingCode,
         appSignature: appSignature,
